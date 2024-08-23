@@ -1,0 +1,260 @@
+import React, { useState } from "react";
+import { insertBookFn } from "../../api/Book/Book";
+import { useForm } from "react-hook-form";
+import Swal from "sweetalert2";
+import { useMutation, useQuery } from "react-query";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import {getAllBookshelfFn} from "../../api/Bookshelf/Bookshelf"
+import {getAllCategoryFn} from "../../api/Category/Category"
+
+export default function InsertModal({ refetch }) {
+  const [date, setDate] = useState(new Date());
+
+  const formatDate = (date) => {
+    const day = ("0" + date.getDate()).slice(-2);
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const year = date.getFullYear();
+    return `${month}-${day}-${year}`;
+  };
+  
+
+  const {
+    data: dataBookshelf,
+    refetch: refetchBookshelf,
+    isLoading: loadingBookshelf,
+    reset: resetBookshelf,
+  } = useQuery("allBookshelf", getAllBookshelfFn)
+
+  const {
+    data: dataCategory,
+    refetch: refetchCategory,
+    isLoading: loadingCategory,
+    reset: resetCategory,
+  } = useQuery("allCategory", getAllCategoryFn)
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm();
+
+  const handleCreateBook = useMutation({
+    mutationFn: (data) => insertBookFn(data),
+    onMutate() {},
+    onSuccess: (res) => {
+      console.log(res);
+      refetch();
+      reset();
+      document.getElementById("insert_book_modal").close();
+      Swal.fire({
+        icon: "success",
+        title: "Book Created!",
+        text: "The Book has been successfully created.",
+      });
+    },
+    onError: (error) => {
+      console.log(error);
+      const errorMessage = error.response?.data?.message || "An error occurred";
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: errorMessage,
+      });
+    },
+  });
+
+
+  const addBook = (data) => {
+    data.date_added = formatDate(date);
+    data.status = "Available";
+  
+    handleCreateBook.mutateAsync(data);
+  };
+
+  return (
+    <dialog id="insert_book_modal" className="modal">
+      <div className="modal-box">
+        <form method="dialog">
+          <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+            ✕
+          </button>
+        </form>
+        <h3 className="font-bold text-lg text-start">Insert Book</h3>
+        <form onSubmit={handleSubmit(addBook)}>
+          <div className="">
+            <label htmlFor="title" className="flex font-semibold text-l mt-3">
+              Title
+            </label>
+            {errors.title && <p className="text-start text-red-600 text-xs">*This field is required</p>}
+            <input
+              className="input input-bordered w-full rounded-lg mt-2 justify-start"
+              placeholder="Title"
+              {...register("title", { required: true })}
+            />
+            
+          </div>
+
+          <div>
+            <label htmlFor="author" className="flex font-semibold text-l mt-3">
+              Author
+            </label>
+            {errors.author && <p className="text-start text-red-600 text-xs">*This field is required</p>}
+            <input
+              className="input input-md input-bordered w-full rounded-lg mt-2 justify-start"
+              placeholder="Author"
+              {...register("author", { required: true })}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="publication_year"
+              className="flex font-semibold text-l mt-3"
+            >
+              Publication Year
+            </label>
+            {errors.publication_year && <p className="text-start text-red-600 text-xs">*This field is required</p>}
+            <input
+              className="input input-bordered w-full rounded-lg mt-2 justify-start"
+              placeholder="Publication Year"
+             
+              {...register("publication_year", {
+                required: true,
+                valueAsNumber: true,
+              })}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="publisher"
+              className="flex font-semibold text-l mt-3"
+            >
+              Publisher
+            </label>
+            {errors.publisher && <p className="text-start text-red-600 text-xs">*This field is required</p>}
+            <input
+              className="input input-bordered w-full rounded-lg mt-2 justify-start"
+              placeholder="Publisher"
+              {...register("publisher")}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="category"
+              className="flex font-semibold text-l mt-3"
+            >
+              Category
+            </label>
+            <select
+              className="select select-bordered w-full rounded-lg mt-2"
+              {...register("category_id", { required: true })}
+            >
+              <option disabled selected>Select Category</option>
+              {dataCategory?.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            {errors.category_id && <span>This field is required</span>}
+          </div>
+
+          <div>
+            <label
+              htmlFor="date_added"
+              className="flex font-semibold text-l mt-3"
+            >
+              Date Added
+            </label>
+            <div className="flex justify-start my-2">
+              <DatePicker
+                selected={date}
+                onChange={(date) => setDate(date)}
+                dateFormat="MM-dd-yyyy"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="source" className="flex font-semibold text-l mt-3">
+              Source
+            </label>
+            <input
+              className="input input-bordered w-full rounded-lg mt-2 justify-start"
+              placeholder="Source"
+              {...register("source")}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="old_book"
+              className="flex font-semibold text-l mt-3"
+            >
+              Old Book
+            </label>
+            <div className="flex flex-row gap-5">
+              <div className="form-control">
+                <label className="label cursor-pointer">
+                  <span className="label-text">No</span>
+                  <input
+                    type="radio"
+                    name="old_book"
+                    value="false"
+                    className="radio checked:bg-red-500 ml-2"
+                    defaultChecked
+                  />
+                </label>
+              </div>
+              <div className="form-control">
+                <label className="label cursor-pointer">
+                  <span className="label-text">Yes</span>
+                  <input
+                    type="radio"
+                    name="old_book"
+                    value="true"
+                    className="radio checked:bg-blue-500 ml-2"
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="bookshelf"
+              className="flex font-semibold text-l mt-3"
+            >
+              Bookshelf
+            </label>
+            <select
+              className="select select-bordered w-full rounded-lg mt-2"
+              {...register("bookshelf_id", { required: true })}
+            >
+              <option disabled selected>Select Bookshelf</option>
+              {dataBookshelf?.map((bookshelf) => (
+                <option key={bookshelf.id} value={bookshelf.id}>
+                  {bookshelf.name}
+                </option>
+              ))}
+            </select>
+            {errors.bookshelf_id && <span>This field is required</span>}
+          </div>
+
+          <div className="w-full flex justify-end">
+            <button
+              className="btn btn-ghost btn-xl bg-[#06476F] text-white rounded-lg mt-2"
+              type="submit"
+            >
+              Add
+            </button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+  );
+}
