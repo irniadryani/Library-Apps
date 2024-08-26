@@ -2,68 +2,98 @@ import React, { useEffect, useState } from "react";
 import { returnBookFn } from "../../api/Transaction/Transaction";
 import { toast } from "react-toastify";
 
-export default function TableTransaction({ data, refetch, currentPaginationTable}) {
-    const [currentPage, setCurrentPage] = useState(currentPaginationTable || 1);
-    const formatDate = (date) => {
-        const day = ("0" + date.getDate()).slice(-2);
-        const month = ("0" + (date.getMonth() + 1)).slice(-2);
-        const year = date.getFullYear();
-        return `${month}-${day}-${year}`;
-      };
+export default function TableTransaction({
+  data,
+  refetch,
+  currentPaginationTable,
+}) {
+  const [currentPage, setCurrentPage] = useState(currentPaginationTable || 1);
+  const formatDate = (date) => {
+    const day = ("0" + date.getDate()).slice(-2);
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const year = date.getFullYear();
+    return `${month}-${day}-${year}`;
+  };
 
-      useEffect(() => {
-        if (
-          currentPaginationTable === undefined ||
-          currentPaginationTable === null
-        ) {
-          setCurrentPage(1);
-        }
-      }, [currentPaginationTable]);
-    
-      const recordsPerPage = 10;
-      const npage = Math.ceil((data?.length || 0) / recordsPerPage);
-      const numbers = Array.from({ length: npage }, (_, index) => index + 1);
-    
-      const prePage = () => {
-        if (currentPage > 1) {
-          setCurrentPage(currentPage - 1);
-        }
-      };
-    
-      const changeCPage = (id) => {
-        setCurrentPage(id);
-      };
-    
-      const nextPage = () => {
-        if (currentPage < npage) {
-          setCurrentPage(currentPage + 1);
-        }
-      };
-    
-    
-      const filteredTransaction= data
-        ? data.slice(
-            (currentPage - 1) * recordsPerPage,
-            currentPage * recordsPerPage
-          )
-        : [];
-    
+  useEffect(() => {
+    if (
+      currentPaginationTable === undefined ||
+      currentPaginationTable === null
+    ) {
+      setCurrentPage(1);
+    }
+  }, [currentPaginationTable]);
 
-      const handleReturnBook = async (id) => {
-        try {
-          const now = new Date();
-          const formattedReturnDate = formatDate(now);
-          
-          await returnBookFn(id, { return_date: formattedReturnDate });
-          toast.success("Successfully returned book");
-          
-          if (refetch) refetch();
-        } catch (error) {
-          console.error("Return error:", error);
-          toast.error("Return failed. Please try again.");
-        }
-      };
-      
+  const recordsPerPage = 10;
+  const npage = Math.ceil((data?.length || 0) / recordsPerPage);
+  const numbers = Array.from({ length: npage }, (_, index) => index + 1);
+
+  const prePage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const changeCPage = (id) => {
+    setCurrentPage(id);
+  };
+
+  const nextPage = () => {
+    if (currentPage < npage) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const filteredTransaction = data
+    ? data.slice(
+        (currentPage - 1) * recordsPerPage,
+        currentPage * recordsPerPage
+      )
+    : [];
+
+  const handleReturnBook = async (id) => {
+    try {
+      const now = new Date();
+      const formattedReturnDate = formatDate(now);
+
+      await returnBookFn(id, { return_date: formattedReturnDate });
+      toast.success("Successfully returned book");
+
+      if (refetch) refetch();
+    } catch (error) {
+      console.error("Return error:", error);
+      toast.error("Return failed. Please try again.");
+    }
+  };
+
+  const convertDateFormat = (dateStr) => {
+    const [month, day, year] = dateStr.split("-");
+
+    const date = new Date(`${year}-${month}-${day}`);
+
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    const formattedDate = `${day} ${monthNames[date.getMonth()]} ${year}`;
+
+    return formattedDate;
+  };
+
+  const formattedLoanDate = (date) => (date ? convertDateFormat(date) : "");
+  const formattedEstimatedReturnDate = (date) => date ? convertDateFormat(date) : "";
+  const formattedReturnDate = (date) => (date ? convertDateFormat(date) : "");
+
   return (
     <div>
       <div className="overflow-x-auto">
@@ -85,18 +115,22 @@ export default function TableTransaction({ data, refetch, currentPaginationTable
                 <th>{index + 1 + (currentPage - 1) * recordsPerPage}</th>
                 <td>{transaction.title}</td>
                 <td>{transaction.borrower_name}</td>
-                <td>{transaction.loan_date}</td>
-                <td>{transaction.estimated_return_date}</td>
-                <td>{transaction.return_date}</td>
+                <td>{formattedLoanDate(transaction.loan_date)}</td>
                 <td>
-                {transaction.return_date === null && (
-                  <button
-                    onClick={() => handleReturnBook(transaction.id)}
-                    className="btn bg-[#5F6F65] text-white"
-                  >
-                    Return Book
-                  </button>
-                )}
+                  {formattedEstimatedReturnDate(
+                    transaction.estimated_return_date
+                  )}
+                </td>
+                <td>{formattedReturnDate(transaction.return_date)}</td>
+                <td>
+                  {transaction.return_date === null && (
+                    <button
+                      onClick={() => handleReturnBook(transaction.id)}
+                      className="btn bg-[#5F6F65] text-white"
+                    >
+                      Return Book
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
