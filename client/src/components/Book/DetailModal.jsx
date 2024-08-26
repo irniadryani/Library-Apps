@@ -4,6 +4,7 @@ import { singleBookFn } from "../../api/Book/Book";
 import { tailspin } from "ldrs";
 
 export default function DetailModal({ bookId }) {
+  // Fetches details of a single book based on the bookId
   const { data: dataSingleBook, refetch: refetchSingleBook } = useQuery(
     ["Single book", bookId],
     () => singleBookFn(bookId),
@@ -12,8 +13,10 @@ export default function DetailModal({ bookId }) {
     }
   );
 
+  // Registers tailspin (possibly for showing a loading spinner or animation)
   tailspin.register();
 
+  // Effect hook to refetch book details when bookId changes
   useEffect(() => {
     if (bookId) {
       refetchSingleBook();

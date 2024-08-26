@@ -4,6 +4,7 @@ const Loan = require("../models/LoansModel");
 const Category = require("../models/CategoryModel");
 const Bookshelf = require("../models/BookshelvesModel");
 
+// Function for get last loan date for each book
 const getLastLoanDate = async (bookId) => {
     try {
         const lastLoan = await Loan.findOne({
@@ -18,6 +19,7 @@ const getLastLoanDate = async (bookId) => {
     }
 };
 
+//Function for get all book
 const getAllBooks = async (req, res) => {
     try {
         const books = await Book.findAll({
@@ -48,26 +50,7 @@ const getAllBooks = async (req, res) => {
     }
 };
 
-
-// const getAllBooks = async (req, res) => {
-//     try {
-//         const books = await Book.findAll({
-//             include: [{ model: Category, as: 'category', attributes: ['name'] }],
-//           });
-
-//           const response = books.map(book => {
-//             return {
-//                 ...book.dataValues, 
-//             };
-//         });
-
-//         res.status(200).json(response);
-//     } catch (error) {
-//         console.error("Error fetching books:", error);
-//         res.status(500).json({ msg: "Internal Server Error" });
-//     }
-// };
-
+//Function for insert book
 const insertBook = async (req, res) => {
     const { title, author, publisher, publication_year, category_id, date_added, source, old_book, bookshelf_id, status } = req.body;
 
@@ -115,6 +98,7 @@ const insertBook = async (req, res) => {
     }
 };
 
+//Function for get book by id
 const getBookById = async (req, res) => {
     const { id } = req.params;
   
@@ -181,6 +165,7 @@ const getBookById = async (req, res) => {
     }
   };
 
+  //Function for update book 
 const updateBook = async (req, res) => {
     const { id } = req.params;
     const { title, author, publisher, publication_year, category_id, date_added, source, old_book, bookshelf_id, status } = req.body;
@@ -236,7 +221,7 @@ const updateBook = async (req, res) => {
     }
 };
 
-
+//Function for delete book
 const deleteBook = async (req, res) => {
     const { id } = req.params;
 

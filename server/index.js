@@ -15,37 +15,49 @@ const bookRoute = require("./routes/BookRoute.js");
 const loanRoute = require("./routes/LoanRoute.js");
 const categoryRoute = require("./routes/CategoryRoute.js");
 const bookshelfRoute = require("./routes/BookshelfRoute.js");
+
+// Initialize the Express app
 const app = express();
 
+// Load environment variables from .env file
 dotenv.config();
 
+// Define the port to run the server on, default to 3000 if not specified
 const port = process.env.APP_PORT || 3000;
 
+// Initialize session store with Sequelize
 const sessionStore = SequelizeStore(session.Store);
 
+// Configure the session store
 const store = new sessionStore({
-  db: sequelize
+  db: sequelize // Use Sequelize instance for session storage
 })
 
+// Configure session middleware
 app.use(
   session({
-    secret: 'akkakakakakkakak',
-    resave: false,
-    saveUninitialized: false,
-    store: store,
-    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 },
+    secret: 'akkakakakakkakak', // Secret for signing the session ID cookie
+    resave: false, // Do not save session if unmodified
+    saveUninitialized: false, // Do not create session until something is stored
+    store: store, // Use the configured Sequelize store
+    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }, // Session cookie settings
   })
 );
 
+// Middleware for parsing JSON request bodies
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); 
+// Middleware for parsing URL-encoded request bodies
+app.use(express.urlencoded({ extended: true }));
+// Middleware for additional JSON parsing
 app.use(bodyParser.json());
-app.use(fileUpload());
+// Middleware for parsing cookies
 app.use(cookieParser());
 
+// CORS configuration
 app.use(
   cors({
     origin: (origin, callback) => {
+      // List of allowed origins
       const allowedOrigins = [
         `http://10.10.101.146:${port}`,
         `http://192.168.231.91:${port}`,
@@ -61,10 +73,10 @@ app.use(
         callback(new Error("Not allowed by CORS")); 
       }
     },
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
-    optionsSuccessStatus: 204,
-    allowedHeaders: ["Content-Type", "Authorization", "Custom-Session-Header"],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Allowed HTTP methods
+    credentials: true, // Allow cookies to be sent with requests
+    optionsSuccessStatus: 204, // Status code for successful preflight requests
+    allowedHeaders: ["Content-Type", "Authorization", "Custom-Session-Header"], // Allowed request headers
   })
 );
 
@@ -72,16 +84,21 @@ app.post("/ping", (req, res) => {
   res.send("pong");
 });
 
-app.use(authRoute);
-app.use(userRoute);
-app.use(bookRoute);
-app.use(loanRoute);
-app.use(categoryRoute);
-app.use(bookshelfRoute);
+// Register routes
+app.use(authRoute); 
+app.use(userRoute); 
+app.use(bookRoute); 
+app.use(loanRoute); 
+app.use(categoryRoute); 
+app.use(bookshelfRoute); 
 
-// store.sync();
-// sequelize.sync({ alter: true });
-// sequelize.sync({ force: false }) // Set to 'true' if you want to drop and recreate tables each time
+// Database synchronization
+// Uncomment the following lines based on your needs
+
+// Sync database tables with Sequelize
+// store.sync(); // Sync session store tables
+// sequelize.sync({ alter: true }); // Update existing tables
+// sequelize.sync({ force: false }) // Drop and recreate tables (set to 'true' if needed)
 //   .then(() => {
 //     console.log('Database & tables synced successfully!');
 //   })
@@ -89,8 +106,7 @@ app.use(bookshelfRoute);
 //     console.error('Error syncing database:', error);
 //   });
 
-
-
+// Start the Express server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

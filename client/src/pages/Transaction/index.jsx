@@ -8,6 +8,7 @@ import { IoMdSearch } from "react-icons/io";
 
 export default function index() {
   const [search, setSearch] = useState("");
+   // Fetching transaction data with react-query
   const {
     data: dataTransaction,
     refetch: refetchTransaction,
@@ -15,6 +16,7 @@ export default function index() {
     reset: resetTransaction,
   } = useQuery("allTrasaction", getAllTransactionFn);
 
+  // Function for search borrower name in data transaction
   const filteredTransaction = dataTransaction?.filter((transaction) => {
     const matchingName =
       search === "" ||
@@ -33,7 +35,7 @@ export default function index() {
           <input
             type="text"
             className="flex h-10 pe-4 pb-1 w-full rounded-lg outline-none text-sm"
-            placeholder="Search Employee"
+            placeholder="Search Transaction"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

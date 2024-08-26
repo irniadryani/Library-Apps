@@ -4,6 +4,7 @@ const Book = require("../models/BookModel");
 const Category = require("../models/CategoryModel");
 const sequelize = require("../config/connection");
 
+//Function for convert date with timestamp into dd-month name-yyyy
 const formatDate = (date) => {
     if (!date) return null;
     const d = new Date(date);
@@ -13,6 +14,7 @@ const formatDate = (date) => {
     return `${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}-${year}`;
 };
 
+//Function for get all book
 const showLoanBook = async (req, res) => {
     try {
        
@@ -33,15 +35,6 @@ const showLoanBook = async (req, res) => {
         if (loans.length === 0) {
             return res.status(404).json({ msg: "No loans found" });
         }
-
-        const formattedDateAdded = loans.date_added
-        ? new Date(loans.date_added).toLocaleDateString("en-US", {
-            month: "2-digit",
-            day: "2-digit",
-            year: "numeric",
-          })
-        : null;
-
       
         const response = loans.map(loan => ({
             id: loan.id,
@@ -63,6 +56,7 @@ const showLoanBook = async (req, res) => {
     }
 };
 
+//Function for get loan by id
 const getLoanById = async (req, res) => {
     const { id } = req.params;
 
@@ -80,6 +74,7 @@ const getLoanById = async (req, res) => {
     }
 };
 
+//Function for create loan
 const createLoan = async (req, res) => {
     const { loan_date, estimated_return_date, book_id, age, borrower_name } = req.body;
   
@@ -148,7 +143,7 @@ const createLoan = async (req, res) => {
     }
 };
 
-
+//Function for return book
 const returnBook = async (req, res) => {
     const { return_date } = req.body;
     const { id: loan_id } = req.params;
@@ -182,12 +177,10 @@ const returnBook = async (req, res) => {
 
         const formattedReturnDate = formatDate(return_date);
 
-        // Update loan return date
         await loan.update({
             return_date: formattedReturnDate,
         });
 
-        // Update book status
         await loan.book.update({ status: 'Available' });
 
         return res.status(200).json({
@@ -200,206 +193,6 @@ const returnBook = async (req, res) => {
     }
 };
 
-
-// const returnBook = async (req, res) => {
-//     const { return_date } = req.body;
-//     const { id: loan_id } = req.params;
-
-//     try {
-//         const loan = await Loans.findOne({
-//             where: { id: loan_id },
-//             include: [
-//                 {
-//                     model: Book,
-//                     as: 'book',
-//                     attributes: ['title', 'author', 'category_id'],
-//                     include: [
-//                         {
-//                             model: Category,
-//                             as: 'category',
-//                             attributes: ['name']
-//                         }
-//                     ]
-//                 }
-//             ]
-//         });
-
-//         if (!loan) {
-//             return res.status(404).json({ message: 'Loan not found.' });
-//         }
-
-//         await loan.update({
-//             return_date: formatDate(return_date),
-//         });
-
-//         await loan.book.update({ status: 'Available' });
-
-//         return res.status(200).json({
-//             message: 'Book returned successfully.',
-//             loan: loan,
-//             book: {
-//                 title: loan.book.title,
-//                 author: loan.book.author,
-//                 category: loan.book.category.name,
-//             }
-//         });
-//     } catch (error) {
-//         console.error(error);
-//         return res.status(500).json({ message: 'An error occurred while returning the book.' });
-//     }
-// };
-
 module.exports = {
     showLoanBook, getLoanById, createLoan, returnBook
 };
-
-
-// const { Op } = require("sequelize");
-// const Loans = require("../models/LoansModel");
-// const Category = require("../models/CategoryModel");
-// const Book = require("../models/BookModel")
-
-// const showLoanBook = async (req,res) => {
-//     try {
-//         const loan = await Loans.findAll();
-
-//         res.status(200).json(loan);
-//     } catch (error) {
-//         console.error("Error fetching loan:", error);
-//         res.status(500).json({ msg: "Internal Server Error" });
-//     }
-// }
-
-// const getLoanById = async (req, res) => {
-//     const { id } = req.params;
-
-//     try {
-//         const loan = await Loans.findByPk(id);
-
-//         if (!loan) {
-//             return res.status(404).json({ msg: "Loan not found" });
-//         }
-
-//         res.status(200).json(loan);
-//     } catch (error) {
-//         console.error("Error fetching loan:", error);
-//         res.status(500).json({ msg: "Internal Server Error" });
-//     }
-// };
-
-// const createLoan = async (req, res) => {
-//     const { loan_date, estimated_return_date, book_id, age, borrower_name } = req.body;
-  
-//     try {
-//       // Check if the book is available
-//       const book = await Book.findOne({
-//         where: {
-//           id: book_id,
-//           status: 'Available',
-//         },
-//         include: [{ model: Category }] // Include Category to get its name
-//       });
-  
-//       if (!book) {
-//         return res.status(400).json({ message: 'Buku tidak tersedia atau tidak ditemukan.' });
-//       }
-  
-//       // Validate loan dates
-//       const today = new Date();
-//       const loanDate = new Date(loan_date);
-//       const returnEstimationDate = new Date(estimated_return_date);
-  
-//       if (loanDate <= today) {
-//         return res.status(400).json({ message: 'Tanggal peminjaman harus lebih dari hari ini.' });
-//       }
-  
-//       if (loanDate >= returnEstimationDate) {
-//         return res.status(400).json({ message: 'Tanggal peminjaman harus sebelum estimasi pengembalian.' });
-//       }
-  
-//       if (loanDate.getTime() === returnEstimationDate.getTime()) {
-//         return res.status(400).json({ message: 'Tanggal peminjaman dan estimasi pengembalian tidak boleh sama.' });
-//       }
-  
-//       // Create new loan
-//       const newLoan = await Loans.create({
-//         book_id: book_id,
-//         age: age,
-//         borrower_name,
-//         loan_date: loanDate,
-//         estimated_return_date: returnEstimationDate,
-//       });
-  
-//       // Update book status to "Borrowed"
-//       await book.update({ status: 'Borrowed' });
-  
-//       return res.status(201).json({
-//         message: 'Peminjaman berhasil disimpan.',
-//         loan: newLoan,
-//         book: {
-//           title: book.title,
-//           author: book.author,
-//           category: book.category ? book.category.name : 'Unknown', // Access category name
-//         }
-//       });
-//     } catch (error) {
-//       console.error(error);
-//       return res.status(500).json({ message: 'Terjadi kesalahan saat menyimpan peminjaman.' });
-//     }
-//   };
-  
-
-//   const returnBook = async (req, res) => {
-//     const { return_date } = req.body;
-//     const { id: loan_id } = req.params; // Get loan ID from route parameter
-  
-//     try {
-//       // Find the loan and associated book
-//       const loan = await Loans.findOne({
-//         where: { id: loan_id },
-//         include: [
-//           {
-//             model: Book,
-//             as: 'book',
-//             attributes: ['title', 'author', 'category_id'],
-//             include: [
-//               {
-//                 model: Category,
-//                 as: 'category',
-//                 attributes: ['name']
-//               }
-//             ]
-//           }
-//         ]
-//       });
-  
-//       if (!loan) {
-//         return res.status(404).json({ message: 'Loan not found.' });
-//       }
-  
-//       // Update return date and book status
-//       await loan.update({
-//         return_date: new Date(return_date),
-//       });
-  
-//       await loan.book.update({ status: 'Available' });
-  
-//       return res.status(200).json({
-//         message: 'Book returned successfully.',
-//         loan: loan,
-//         book: {
-//           title: loan.book.title,
-//           author: loan.book.author,
-//           category: loan.book.category.name, // Include category name if needed
-//         }
-//       });
-//     } catch (error) {
-//       console.error(error);
-//       return res.status(500).json({ message: 'Error occurred while returning the book.' });
-//     }
-//   };
-  
-
-// module.exports = {
-//     showLoanBook, getLoanById, createLoan, returnBook
-// }

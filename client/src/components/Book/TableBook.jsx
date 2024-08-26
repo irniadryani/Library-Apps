@@ -20,6 +20,7 @@ export default function TableBook({
   const [bookIdToView, setBookIdToView] = useState(null);
   const [currentPage, setCurrentPage] = useState(currentPaginationTable || 1);
 
+  // Effect to reset the current page if `currentPaginationTable` is undefined or null
   useEffect(() => {
     if (
       currentPaginationTable === undefined ||
@@ -29,27 +30,34 @@ export default function TableBook({
     }
   }, [currentPaginationTable]);
 
+  // Number of records to display per page
   const recordsPerPage = 5;
+  // Calculate the total number of pages needed
   const npage = Math.ceil((data?.length || 0) / recordsPerPage);
+  // Array of page numbers for pagination controls
   const numbers = Array.from({ length: npage }, (_, index) => index + 1);
 
   // Pagination handlers
+  // Move to the previous page if not on the first page
   const prePage = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     }
   };
 
+  // Change to a specific page
   const changeCPage = (id) => {
     setCurrentPage(id);
   };
 
+  // Move to the next page if not on the last page
   const nextPage = () => {
     if (currentPage < npage) {
       setCurrentPage(currentPage + 1);
     }
   };
 
+  // Filter the data to display only the records for the current page
   const filteredBook = data
     ? data.slice(
         (currentPage - 1) * recordsPerPage,
@@ -57,29 +65,35 @@ export default function TableBook({
       )
     : [];
 
+  // Open the detail modal for a specific book
   const openDetailModal = (bookId) => {
     setBookIdToView(bookId);
     document.getElementById("detail_book_modal").showModal();
   };
 
+  // Open the update modal for a specific book
   const openUpdateModal = (bookId) => {
+    setbookToUpdate(bookId);
     document.getElementById("update_book_modal").showModal();
   };
 
+  // Mutation for deleting a book
   const handleDeleteBook = useMutation({
     mutationFn: (data) => deleteBookFn(data),
     onMutate() {},
     onSuccess: (res) => {
       console.log(res);
-      refetch();
+      refetch(); // Refetch the data after a successful deletion
     },
     onError: (error) => {
       console.log(error);
     },
   });
 
+  // Handle book deletion with confirmation dialog
   const handleConfirmDelete = async () => {
     try {
+      // Show confirmation dialog
       const result = await Swal.fire({
         title: "Are you sure?",
         text: "You won't be able to revert this!",
@@ -90,6 +104,7 @@ export default function TableBook({
         confirmButtonText: "Yes, delete it!",
       });
 
+      // If confirmed, delete the book
       if (result.isConfirmed) {
         await handleDeleteBook.mutateAsync(bookIdToDelete);
         Swal.fire({
@@ -97,25 +112,29 @@ export default function TableBook({
           text: "Your book has been deleted.",
           icon: "success",
         });
+        setbookIdToDelete(null); // Reset bookIdToDelete after deletion
       }
 
+      // If cancelled or dismissed, reset bookIdToDelete
       if (result.isDismissed || result.isDenied) {
         setbookIdToDelete(null);
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to delete book", {
-        position: "top-right",
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to delete book",
       });
     }
   };
 
+  // Effect to handle book deletion when bookIdToDelete changes
   useEffect(() => {
     if (bookIdToDelete !== null) {
       handleConfirmDelete();
     }
   }, [bookIdToDelete]);
-
   return (
     <div>
       <div className="overflow-x-auto">

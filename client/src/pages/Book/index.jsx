@@ -4,12 +4,11 @@ import { useQuery } from "react-query";
 import TableBook from "../../components/Book/TableBook";
 import InsertModal from "../../components/Book/InsertModal";
 import { IoCreateOutline } from "react-icons/io5";
-import { useLocation } from "react-router-dom";
 import { IoMdSearch } from "react-icons/io";
 
 export default function index() {
   const [search, setSearch] = useState("");
-  const location = useLocation();
+    // Fetching books data with react-query
   const {
     data: dataBook,
     refetch: refetchBook,
@@ -17,6 +16,7 @@ export default function index() {
     reset: resetBook,
   } = useQuery("allBook", listBookFn);
 
+  // Filtering books based on the search query
   const filteredBook = dataBook?.filter((book) => {
     const matchingTitle =
       search === "" ||
@@ -28,13 +28,13 @@ export default function index() {
     <div>
       <div>
         <p className="m-10 font-bold text-4xl text-start">List Book</p>
-        <div className="flex justify-end">
+        <div className="flex justify-start">
         <div className="flex items-center gap-2 pl-4 max-w-[200px] my-10 rounded-lg bg-white border border-black hover:border-black focus:border-black  border-solid border-2 shadow-xl">
           <IoMdSearch fontSize="1.125rem" color="#000000" />
           <input
             type="text"
             className="flex h-10 pe-4 pb-1 w-full rounded-lg outline-none text-sm"
-            placeholder="Search Employee"
+            placeholder="Search Book"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

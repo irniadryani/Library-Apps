@@ -11,66 +11,72 @@ import { getAllCategoryFn } from "../../api/Category/Category";
 export default function InsertModal({ refetch }) {
   const [date, setDate] = useState(new Date());
 
-  const formatDate = (date) => {
-    const day = ("0" + date.getDate()).slice(-2);
-    const month = ("0" + (date.getMonth() + 1)).slice(-2);
-    const year = date.getFullYear();
-    return `${month}-${day}-${year}`;
-  };
-
-  const {
-    data: dataBookshelf,
-    refetch: refetchBookshelf,
-    isLoading: loadingBookshelf,
-    reset: resetBookshelf,
-  } = useQuery("allBookshelf", getAllBookshelfFn);
-
-  const {
-    data: dataCategory,
-    refetch: refetchCategory,
-    isLoading: loadingCategory,
-    reset: resetCategory,
-  } = useQuery("allCategory", getAllCategoryFn);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm();
-
-  const handleCreateBook = useMutation({
-    mutationFn: (data) => insertBookFn(data),
-    onMutate() {},
-    onSuccess: (res) => {
-      console.log(res);
-      refetch();
-      reset();
-      document.getElementById("insert_book_modal").close();
-      Swal.fire({
-        icon: "success",
-        title: "Book Created!",
-        text: "The Book has been successfully created.",
-      });
-    },
-    onError: (error) => {
-      console.log(error);
-      document.getElementById("insert_book_modal").close();
-      const errorMessage = error.response?.data?.message || "An error occurred";
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: errorMessage,
-      });
-    },
-  });
-
-  const addBook = (data) => {
-    data.date_added = formatDate(date);
-    data.status = "Available";
-
-    handleCreateBook.mutateAsync(data);
-  };
+    // Format date to MM-DD-YYYY
+    const formatDate = (date) => {
+      const day = ("0" + date.getDate()).slice(-2);
+      const month = ("0" + (date.getMonth() + 1)).slice(-2);
+      const year = date.getFullYear();
+      return `${month}-${day}-${year}`;
+    };
+  
+    // Fetching all bookshelves
+    const {
+      data: dataBookshelf,
+      refetch: refetchBookshelf,
+      isLoading: loadingBookshelf,
+      reset: resetBookshelf,
+    } = useQuery("allBookshelf", getAllBookshelfFn);
+  
+    // Fetching all categories
+    const {
+      data: dataCategory,
+      refetch: refetchCategory,
+      isLoading: loadingCategory,
+      reset: resetCategory,
+    } = useQuery("allCategory", getAllCategoryFn);
+  
+    // Form handling setup
+    const {
+      register,
+      handleSubmit,
+      formState: { errors },
+      reset,
+    } = useForm();
+  
+    // Mutation to insert a new book
+    const handleCreateBook = useMutation({
+      mutationFn: (data) => insertBookFn(data),
+      onMutate() {},
+      onSuccess: (res) => {
+        console.log(res);
+        refetch(); // Refetch the list of books or other related data
+        reset(); // Reset the form fields
+        document.getElementById("insert_book_modal").close(); // Close the modal
+        Swal.fire({
+          icon: "success",
+          title: "Book Created!",
+          text: "The Book has been successfully created.",
+        });
+      },
+      onError: (error) => {
+        console.log(error);
+        document.getElementById("insert_book_modal").close(); // Close the modal on error
+        const errorMessage = error.response?.data?.message || "An error occurred";
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: errorMessage,
+        });
+      },
+    });
+  
+    // Handle form submission
+    const addBook = (data) => {
+      data.date_added = formatDate(date); // Add formatted date
+      data.status = "Available"; // Set book status to "Available"
+      handleCreateBook.mutateAsync(data); // Trigger the mutation to insert the book
+    };
+  
 
   return (
     <dialog id="insert_book_modal" className="modal">

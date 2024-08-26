@@ -12,13 +12,17 @@ export default function Login() {
   const { setUserSession, setAuthUser } = useStore();
   const navigate = useNavigate(); 
 
+  // Handle form submission
   const onSubmit = async (data) => {
     try {
       console.log('Login data:', data); 
+
+      // Call the API function to log in the user
       const response = await loginUserFn(data); 
 
-   
+      // Check if the response contains session data
       if (response.session) {
+        // Update the Zustand store with session and user data
         setUserSession(response.session); 
         setAuthUser({
           id: response.session.id,
@@ -27,16 +31,18 @@ export default function Login() {
           role: response.session.role,
         });
 
+        // Navigate to the home page on successful login
         navigate("/"); 
-        toast.success("You successfully logged in");
+        toast.success("You successfully logged in"); 
       } else {
         throw new Error("No session data returned");
       }
     } catch (error) {
       console.error("Login failed:", error.message); 
-      toast.error("Email or Password is not valid");
+      toast.error("Email or Password is not valid"); 
     }
   };
+
 
   return (
     <div className="flex bg-[#C1D8C3] !h-dvh w-full">

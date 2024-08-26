@@ -16,8 +16,9 @@ export default function Register() {
     reset: resetRegister,
   } = methods;
 
+   // Define a mutation for user registration
   const handleRegister = useMutation({
-    mutationFn: (data) => registerUserFn(data),
+    mutationFn: (data) => registerUserFn(data), // Function to register user
     onSuccess: (res) => {
       console.log(res);
       resetRegister();
@@ -38,6 +39,7 @@ export default function Register() {
     },
   });
 
+  // Function to trigger registration
   const addAccount = (data) => {
     handleRegister.mutate(data);
   };

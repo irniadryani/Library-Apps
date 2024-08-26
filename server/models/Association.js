@@ -2,7 +2,7 @@ const Books = require("./BookModel");
 const Loans = require("./LoansModel");
 const Category = require("./CategoryModel");
 
-
+// Create association for table
 Books.hasMany(Loans, { foreignKey: "book_id", as: 'bookloans' });
 Loans.belongsTo(Books, { foreignKey: "book_id", as: 'book' });
 

@@ -4,6 +4,7 @@ import { listBookFn } from "../../api/Book/Book";
 import { useQuery } from "react-query";
 
 export default function index() {
+   // Fetching books data with react-query
   const {
     data: dataBook,
     refetch: refetchBook,
@@ -11,6 +12,7 @@ export default function index() {
     reset: resetBook,
   } = useQuery("allBook", listBookFn);
 
+  //Function for calculate total books
   const calculateTotalBooks = () => {
     let totalbooks = 0;
 
@@ -20,6 +22,7 @@ export default function index() {
     return totalbooks;
   };
 
+  //Function for calculate borrowed books
   const calculateBorrowedBooks = () => {
     let borrowedBook = 0;
 
@@ -29,6 +32,7 @@ export default function index() {
     return borrowedBook;
   };
 
+  //Function for calculate new books
   const calculateNewBooks = () => {
     let newBook = 0;
 
@@ -38,6 +42,7 @@ export default function index() {
     return newBook;
   };
 
+  //Function for calculate late return book
   const calculateLateReturn = () => {
     let lateReturn = 0;
 

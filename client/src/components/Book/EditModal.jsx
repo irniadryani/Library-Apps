@@ -11,6 +11,7 @@ import { getAllCategoryFn } from "../../api/Category/Category";
 export default function EditModal({ book, refetch }) {
   const [date, setDate] = useState(new Date());
 
+  // Format date to MM-DD-YYYY
   const formatDate = (date) => {
     const day = ("0" + date.getDate()).slice(-2);
     const month = ("0" + (date.getMonth() + 1)).slice(-2);
@@ -18,13 +19,15 @@ export default function EditModal({ book, refetch }) {
     return `${month}-${day}-${year}`;
   };
 
-  const {
+   // Fetching all bookshelves
+   const {
     data: dataBookshelf,
     refetch: refetchBookshelf,
     isLoading: loadingBookshelf,
     reset: resetBookshelf,
   } = useQuery("allBookshelf", getAllBookshelfFn);
 
+  // Fetching all categories
   const {
     data: dataCategory,
     refetch: refetchCategory,
@@ -32,6 +35,7 @@ export default function EditModal({ book, refetch }) {
     reset: resetCategory,
   } = useQuery("allCategory", getAllCategoryFn);
 
+  // Form handling setup
   const {
     register,
     handleSubmit,
@@ -39,6 +43,7 @@ export default function EditModal({ book, refetch }) {
     setValue,
   } = useForm();
 
+  // Effect to populate form with book details when `book` prop changes
   useEffect(() => {
     if (book) {
       setValue("title", book.title);
@@ -53,16 +58,17 @@ export default function EditModal({ book, refetch }) {
     }
   }, [book, setValue]);
 
+  // Mutation to update book details
   const handleUpdateBook = useMutation({
     mutationFn: (data) => updateBookFn(book.id, data),
     onSuccess: async () => {
-      await refetch();
+      await refetch(); // Refetch the book list or other data after successful update
       Swal.fire({
         icon: "success",
         title: "Book Updated!",
         text: "The Book has been successfully updated.",
       });
-      document.getElementById("update_book_modal").close();
+      document.getElementById("update_book_modal").close(); // Close the modal after success
     },
     onError: async (error) => {
       console.error(error);
@@ -74,10 +80,12 @@ export default function EditModal({ book, refetch }) {
     },
   });
 
+  // Handle form submission
   const onSubmit = (data) => {
-    data.date_added = formatDate(date);
-    handleUpdateBook.mutateAsync(data);
+    data.date_added = formatDate(date); // Format the date before submitting
+    handleUpdateBook.mutateAsync(data); // Trigger the mutation to update book
   };
+
 
   return (
     <dialog id="update_book_modal" className="modal">

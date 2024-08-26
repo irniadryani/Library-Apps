@@ -3,6 +3,7 @@ const User = require("../models/UsersModel");
 const Role = require("../models/RoleModel");
 const bcrypt = require("bcrypt");
 
+//Function for get all user
 const getUsers = async (req, res) => {
   try {
     const users = await User.findAll({
@@ -31,6 +32,7 @@ const getUsers = async (req, res) => {
   }
 };
 
+//Function for create user/ register
 const createUser = async (req, res) => {
   const { full_name, email, password, confPassword } = req.body;
 

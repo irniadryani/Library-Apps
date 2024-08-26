@@ -2,6 +2,7 @@
 const { Op } = require("sequelize");
 const Category = require("../models/CategoryModel");
 
+// Function for get all category
 const getCategory = async (req, res) => {
   try {
     const categories = await Category.findAll({ paranoid: false });

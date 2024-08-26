@@ -13,6 +13,7 @@ const Sidebar = () => {
   const store = useStore();
   const navigate = useNavigate();
   const location = useLocation();
+  //Function for handling logout
   const handleLogout = async () => {
     const result = await Swal.fire({
       title: "Are you sure?",

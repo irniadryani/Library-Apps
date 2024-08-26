@@ -1,3 +1,4 @@
+// Function to create an authentication store
 export const authStore = (set) => ({
   authUser: null,
   userSession: null,

@@ -1,8 +1,8 @@
 const User  = require('../models/UsersModel');
-const Role = require ("../models/RoleModel") // Adjust the path to your User model
-const { comparePassword } = require('../utils/utils'); // Adjust the path to your utils
+const Role = require ("../models/RoleModel") 
+const { comparePassword } = require('../utils/utils'); 
 
-
+// Function for login
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -41,6 +41,7 @@ const login = async (req, res) => {
   }
 };
 
+//Function for get user data that logged in
 const me = async (req, res) => {
   if (!req.session.userId) {
     return res.status(401).json({ msg: "Please login to your account" });
@@ -69,7 +70,7 @@ const me = async (req, res) => {
   }
 };
 
-
+//Function for log out
 const logout = async (req,res) => {
   req.session.destroy((err)=> {
     if (err) return res.status(400).json({msg: "Cannot Logout"});
