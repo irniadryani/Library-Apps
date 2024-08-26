@@ -26,7 +26,7 @@ const showLoanBook = async (req, res) => {
               
                 [sequelize.literal(`CASE WHEN "return_date" IS NULL THEN 1 ELSE 2 END`)],
                
-                ['loan_date', 'DESC'],
+                ['created_at', 'DESC'],
             ],
         });
 
@@ -115,6 +115,11 @@ const createLoan = async (req, res) => {
         
         if (loanDate.getTime() === returnEstimationDate.getTime()) {
             return res.status(400).json({ message: 'Loan date and estimated return date cannot be the same.' });
+        }
+        if (age < 17) {
+            return res.status(400).json({ message: 'Borrower must be at least 17 years old.' });
+        } else if (age > 80) {
+            return res.status(400).json({ message: 'Borrower age exceeds the maximum limit of 80 years.' });
         }
   
         const newLoan = await Loans.create({
