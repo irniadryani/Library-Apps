@@ -1,5 +1,4 @@
 import React from "react";
-import Layout from "../Layout/index";
 import DashboardImg from "../../assets/dashboardimg.png";
 import { listBookFn } from "../../api/Book/Book";
 import { useQuery } from "react-query";
@@ -39,9 +38,20 @@ export default function index() {
     return newBook;
   };
 
+  const calculateLateReturn = () => {
+    let lateReturn = 0;
+
+    if (!loadingBook && dataBook) {
+      lateReturn = dataBook.filter( (book) => (book.return_date > book.estimated_return_date)).length;
+    }
+    return lateReturn;
+  };
+
   const totalBorrowedBooks = calculateBorrowedBooks();
   const totalBooks = calculateTotalBooks();
   const totalNewBooks = calculateNewBooks();
+  const totalLateReturn = calculateLateReturn();
+
   return (
     <div>
       <div className="bg-gradient-to-br from-[#808D7C] via-[#9CA986] to-[#C9DABF] w-full h-56 rounded-xl shadow-xl">
@@ -105,13 +115,23 @@ export default function index() {
             </p>
           </div>
         </div>
-        <div className="flex items-center justify-center rounded-xl bg-[#5F6F65] shadow-xl w-full h-36">
-          Total Late Return
+        <div className="flex items-center justify-start rounded-xl bg-[#5F6F65] shadow-xl w-full h-36">
+        <div className="flex flex-col items-start ml-5">
+            <p className="font-bold text-sm text-start py-2 items-start text-white">
+              Total Late Return
+            </p>
+            {!loadingBook && (
+              <h2 className="font-bold text-6xl items-start text-white">
+                {totalLateReturn}
+              </h2>
+            )}
+            <p className="font-medium text-xs py-2 items-start text-white">
+              Book
+            </p>
+          </div>
         </div>
       </div>
-      <div>
-        <p className="text-3xl font-bold text-start my-10">Top 10 Popular Book</p>
-      </div>
+      
     </div>
   );
 }

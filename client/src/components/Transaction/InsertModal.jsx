@@ -153,7 +153,7 @@ export default function InsertModal({ refetch }) {
             <input
               className="input input-md input-bordered w-full rounded-lg mt-2 justify-start"
               placeholder="Bookshelf"
-              {...register("bookshelf_id", { required: true })}
+              {...register("bookshelf_id")}
               value={bookDetails.bookshelfName} 
             />
             {errors.bookshelf_id && <span>This field is required</span>}

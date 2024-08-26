@@ -39,7 +39,7 @@ export default function Login() {
   };
 
   return (
-    <div className="flex bg-[#C1D8C3] !h-dvh">
+    <div className="flex bg-[#C1D8C3] !h-dvh w-full">
       <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
         <div className="bg-white rounded-xl shadow-xl p-10 w-full max-w-sm lg:w-96">
           <div>
