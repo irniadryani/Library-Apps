@@ -53,7 +53,6 @@ const Books = sequelize.define(
     },
     old_book: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
     },
     bookshelf_id: {
       type: DataTypes.UUID,

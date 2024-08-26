@@ -5,8 +5,8 @@ import Swal from "sweetalert2";
 import { useMutation, useQuery } from "react-query";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import {getAllBookshelfFn} from "../../api/Bookshelf/Bookshelf"
-import {getAllCategoryFn} from "../../api/Category/Category"
+import { getAllBookshelfFn } from "../../api/Bookshelf/Bookshelf";
+import { getAllCategoryFn } from "../../api/Category/Category";
 
 export default function InsertModal({ refetch }) {
   const [date, setDate] = useState(new Date());
@@ -17,21 +17,20 @@ export default function InsertModal({ refetch }) {
     const year = date.getFullYear();
     return `${month}-${day}-${year}`;
   };
-  
 
   const {
     data: dataBookshelf,
     refetch: refetchBookshelf,
     isLoading: loadingBookshelf,
     reset: resetBookshelf,
-  } = useQuery("allBookshelf", getAllBookshelfFn)
+  } = useQuery("allBookshelf", getAllBookshelfFn);
 
   const {
     data: dataCategory,
     refetch: refetchCategory,
     isLoading: loadingCategory,
     reset: resetCategory,
-  } = useQuery("allCategory", getAllCategoryFn)
+  } = useQuery("allCategory", getAllCategoryFn);
 
   const {
     register,
@@ -56,6 +55,7 @@ export default function InsertModal({ refetch }) {
     },
     onError: (error) => {
       console.log(error);
+      document.getElementById("insert_book_modal").close();
       const errorMessage = error.response?.data?.message || "An error occurred";
       Swal.fire({
         icon: "error",
@@ -65,11 +65,10 @@ export default function InsertModal({ refetch }) {
     },
   });
 
-
   const addBook = (data) => {
     data.date_added = formatDate(date);
     data.status = "Available";
-  
+
     handleCreateBook.mutateAsync(data);
   };
 
@@ -87,20 +86,27 @@ export default function InsertModal({ refetch }) {
             <label htmlFor="title" className="flex font-semibold text-l mt-3">
               Title
             </label>
-            {errors.title && <p className="text-start text-red-600 text-xs">*This field is required</p>}
+            {errors.title && (
+              <p className="text-start text-red-600 text-xs">
+                *This field is required
+              </p>
+            )}
             <input
               className="input input-bordered w-full rounded-lg mt-2 justify-start"
               placeholder="Title"
               {...register("title", { required: true })}
             />
-            
           </div>
 
           <div>
             <label htmlFor="author" className="flex font-semibold text-l mt-3">
               Author
             </label>
-            {errors.author && <p className="text-start text-red-600 text-xs">*This field is required</p>}
+            {errors.author && (
+              <p className="text-start text-red-600 text-xs">
+                *This field is required
+              </p>
+            )}
             <input
               className="input input-md input-bordered w-full rounded-lg mt-2 justify-start"
               placeholder="Author"
@@ -115,11 +121,14 @@ export default function InsertModal({ refetch }) {
             >
               Publication Year
             </label>
-            {errors.publication_year && <p className="text-start text-red-600 text-xs">*This field is required</p>}
+            {errors.publication_year && (
+              <p className="text-start text-red-600 text-xs">
+                *This field is required
+              </p>
+            )}
             <input
               className="input input-bordered w-full rounded-lg mt-2 justify-start"
               placeholder="Publication Year"
-             
               {...register("publication_year", {
                 required: true,
                 valueAsNumber: true,
@@ -134,7 +143,11 @@ export default function InsertModal({ refetch }) {
             >
               Publisher
             </label>
-            {errors.publisher && <p className="text-start text-red-600 text-xs">*This field is required</p>}
+            {errors.publisher && (
+              <p className="text-start text-red-600 text-xs">
+                *This field is required
+              </p>
+            )}
             <input
               className="input input-bordered w-full rounded-lg mt-2 justify-start"
               placeholder="Publisher"
@@ -153,7 +166,9 @@ export default function InsertModal({ refetch }) {
               className="select select-bordered w-full rounded-lg mt-2"
               {...register("category_id", { required: true })}
             >
-              <option disabled selected>Select Category</option>
+              <option disabled selected>
+                Select Category
+              </option>
               {dataCategory?.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -205,8 +220,8 @@ export default function InsertModal({ refetch }) {
                     type="radio"
                     name="old_book"
                     value="false"
+                    {...register("old_book")}
                     className="radio checked:bg-red-500 ml-2"
-                    defaultChecked
                   />
                 </label>
               </div>
@@ -217,6 +232,7 @@ export default function InsertModal({ refetch }) {
                     type="radio"
                     name="old_book"
                     value="true"
+                    {...register("old_book")}
                     className="radio checked:bg-blue-500 ml-2"
                   />
                 </label>
@@ -235,7 +251,9 @@ export default function InsertModal({ refetch }) {
               className="select select-bordered w-full rounded-lg mt-2"
               {...register("bookshelf_id", { required: true })}
             >
-              <option disabled selected>Select Bookshelf</option>
+              <option disabled selected>
+                Select Bookshelf
+              </option>
               {dataBookshelf?.map((bookshelf) => (
                 <option key={bookshelf.id} value={bookshelf.id}>
                   {bookshelf.name}
