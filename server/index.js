@@ -31,7 +31,7 @@ app.use(
   session({
     secret: 'akkakakakakkakak',
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     store: store,
     cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 },
   })
