@@ -1,19 +1,45 @@
 const { Op } = require("sequelize");
 const Book = require("../models/BookModel");
+const Loan = require("../models/LoansModel");
 const Category = require("../models/CategoryModel");
 const Bookshelf = require("../models/BookshelvesModel");
+
+const getLastLoanDate = async (bookId) => {
+    try {
+        const lastLoan = await Loan.findOne({
+            where: { book_id: bookId },
+            order: [['loan_date', 'DESC']],
+            attributes: ['loan_date'],
+        });
+        return lastLoan ? lastLoan.loan_date : null;
+    } catch (error) {
+        console.error("Error fetching last loan date:", error);
+        return null;
+    }
+};
 
 const getAllBooks = async (req, res) => {
     try {
         const books = await Book.findAll({
             include: [{ model: Category, as: 'category', attributes: ['name'] }],
-          });
-
-          const response = books.map(book => {
-            return {
-                ...book.dataValues, 
-            };
         });
+
+        const response = await Promise.all(books.map(async (book) => {
+            const lastLoanDate = await getLastLoanDate(book.id);
+
+            const formattedLastLoanDate = lastLoanDate
+                ? new Date(lastLoanDate).toLocaleDateString("en-US", {
+                    month: "2-digit",
+                    day: "2-digit",
+                    year: "numeric",
+                })
+                : null;
+
+            return {
+                ...book.dataValues,
+                formattedLastLoanDate
+            };
+        }));
 
         res.status(200).json(response);
     } catch (error) {
@@ -21,6 +47,26 @@ const getAllBooks = async (req, res) => {
         res.status(500).json({ msg: "Internal Server Error" });
     }
 };
+
+
+// const getAllBooks = async (req, res) => {
+//     try {
+//         const books = await Book.findAll({
+//             include: [{ model: Category, as: 'category', attributes: ['name'] }],
+//           });
+
+//           const response = books.map(book => {
+//             return {
+//                 ...book.dataValues, 
+//             };
+//         });
+
+//         res.status(200).json(response);
+//     } catch (error) {
+//         console.error("Error fetching books:", error);
+//         res.status(500).json({ msg: "Internal Server Error" });
+//     }
+// };
 
 const insertBook = async (req, res) => {
     const { title, author, publisher, publication_year, category_id, date_added, source, old_book, bookshelf_id, status } = req.body;

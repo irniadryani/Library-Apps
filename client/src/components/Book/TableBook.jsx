@@ -127,6 +127,7 @@ export default function TableBook({
               <th>Author</th>
               <th>Category</th>
               <th>Status</th>
+              <th>Last Loan Date</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -148,6 +149,7 @@ export default function TableBook({
                     {book.status}
                   </div>
                 </td>
+                <td>{book.formattedLastLoanDate}</td>
 
                 <td>
                   <div className="flex flex-row gap-4 justify-center items-center">
